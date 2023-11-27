@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AXIOS</title>
 </head>
+
 <body>
     <section>
         <div id="buttons">
@@ -42,27 +43,66 @@
         <div id="text">
         </div>
     </section>
-    <!-- <script src="/js/index.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        function showResponse(res){
-    document.querySelector('#text').innerHTML = `
+        function showResponse(res) {
+            document.querySelector('#text').innerHTML = `
         <h1>Informações</h1>
         <pre>
-            ${JSON.stringify(res.data,null,'\t')}
+            ${JSON.stringify(res.data, null, '\t')}
         </pre>
     `
+        }
+        function get() {
+            axios.get("http://jsonplaceholder.typicode.com/todos")
+                .then(res => showResponse(res))
+        }
+        function getById() {
+            const id = document.querySelector('#user').value
+            axios.get(`http://jsonplaceholder.typicode.com/todos/${id}`)
+                .then(res => showResponse(res))
+        }
+
+        function post() {
+            const title = document.querySelector('#post').value
+            axios.post("http://jsonplaceholder.typicode.com/posts", { title }).then(res => showResponse(res))
+        }
+
+        function put(){
+            const id = document.querySelector('#update').value
+            const title = document.querySelector('#update-title').value
+            axios.put(`http://jsonplaceholder.typicode.com/posts/${id}`,{title}).then(res => showResponse(res))
+        }
+
+        function remove(){
+            const id = document.querySelector('#delete').value;
+            axios.delete(`https://jsonplaceholder.typicode.com/posts/${id}`)
+        }
+
+        function todo(){
+    axios.all([
+        axios.get("https://jsonplaceholder.typicode.com/todos"),
+        axios.post("https://jsonplaceholder.typicode.com/posts",
+    {title:"olá"})
+        ]).then(axios.spread((posts,write)=>{
+        showResponse(posts)
+        if(write.status == 201){
+            alert("post cadastrado")
+        }
+     }))
 }
 
-function get(){
-    axios.get("http://jsonplaceholder.typicode.com/todos")
-        .then(res =>showResponse(res))
-}
-function getById(){
-    const id = document.querySelector('#user').value
-    axios.get(`http://jsonplaceholder.typicode.com/todos/${id}`)
-    .then(res => showResponse(res))
-}
+const user = []
+axios.interceptors.response.use(config => {
+    config.data.forEach(data =>{
+        if(data.userId ==1){
+            user.push(data)
+        }
+    })
+    config.data = user
+    return config
+})
+
     </script>
- </body>
+</body>
 </html>
